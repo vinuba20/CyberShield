@@ -1,0 +1,6 @@
+# SYNTHETIC DEMONSTRATION DATA - not collected from real equipment
+timestamp,tool,component,code,severity
+2026-10-18T10:00:00Z,Pump-1,Motor,PUMP_FAULT,CRITICAL
+2026-10-18T10:00:15Z,Pump-1,Pressure-Sensor,PRESSURE_HIGH,HIGH
+2026-10-18T10:00:30Z,Wafer-Handler-1,Arm,HANDLER_ALARM,HIGH
+2026-10-18T10:00:45Z,Recipe-Controller-1,Recipe,RECIPE_ABORT,MEDIUM
