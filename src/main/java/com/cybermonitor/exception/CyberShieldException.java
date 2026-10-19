@@ -6,6 +6,8 @@ package com.cybermonitor.exception;
  */
 public class CyberShieldException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public CyberShieldException(String message) {
         super(message);
     }

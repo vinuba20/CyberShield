@@ -1,0 +1,34 @@
+# CyberShield sample auth log (synthetic data only). Format: docs/data-formats.md
+# Expected result with the default settings: 4 alerts grouped into 3 incidents, 2 malformed lines skipped.
+2026-01-01 10:00:00 sshd user=alice src=10.0.1.11 LOGIN_OK Login successful
+2026-01-01 10:02:10 sshd user=bob src=10.0.1.12 LOGIN_FAILED Invalid password
+2026-01-01 10:02:18 sshd user=bob src=10.0.1.12 LOGIN_OK Login successful
+
+# Brute force: 8 failed logins from one outside address in 7 seconds, then a success 20 s later
+2026-01-01 10:05:00 sshd user=root src=203.0.113.5 LOGIN_FAILED Invalid password
+2026-01-01 10:05:01 sshd user=root src=203.0.113.5 LOGIN_FAILED Invalid password
+2026-01-01 10:05:02 sshd user=root src=203.0.113.5 LOGIN_FAILED Invalid password
+2026-01-01 10:05:03 sshd user=root src=203.0.113.5 LOGIN_FAILED Invalid password
+2026-01-01 10:05:04 sshd user=root src=203.0.113.5 LOGIN_FAILED Invalid password
+2026-01-01 10:05:05 sshd user=root src=203.0.113.5 LOGIN_FAILED Invalid password
+2026-01-01 10:05:06 sshd user=root src=203.0.113.5 LOGIN_FAILED Invalid password
+2026-01-01 10:05:07 sshd user=root src=203.0.113.5 LOGIN_FAILED Invalid password
+2026-01-01 10:05:27 sshd user=root src=203.0.113.5 LOGIN_OK Login successful
+
+# Slower guessing: 4 failures (below the brute-force threshold) then a success
+2026-01-01 10:20:00 sshd user=admin src=203.0.113.9 LOGIN_FAILED Invalid password
+2026-01-01 10:20:03 sshd user=admin src=203.0.113.9 LOGIN_FAILED Invalid password
+2026-01-01 10:20:06 sshd user=admin src=203.0.113.9 LOGIN_FAILED Invalid password
+2026-01-01 10:20:09 sshd user=admin src=203.0.113.9 LOGIN_FAILED Invalid password
+2026-01-01 10:20:25 sshd user=admin src=203.0.113.9 LOGIN_OK Login successful
+
+# A forgetful employee: 3 typos, then the right password (the rules cannot tell this apart from an attack)
+2026-01-01 10:40:00 sshd user=carol src=10.0.1.13 LOGIN_FAILED Invalid password
+2026-01-01 10:40:06 sshd user=carol src=10.0.1.13 LOGIN_FAILED Invalid password
+2026-01-01 10:40:12 sshd user=carol src=10.0.1.13 LOGIN_FAILED Invalid password
+2026-01-01 10:40:30 sshd user=carol src=10.0.1.13 LOGIN_OK Login successful
+
+# Bad lines: they are skipped and counted
+this line does not follow the format
+2026-13-45 99:99:99 sshd user=x src=1.1.1.1 LOGIN_OK Impossible date
+2026-01-01 11:00:00 sshd user=alice src=10.0.1.11 LOGIN_OK Login successful

@@ -2,15 +2,20 @@ package com.cybermonitor;
 
 import com.cybermonitor.config.AppConfig;
 import com.cybermonitor.service.StartupCheckService;
+import com.cybermonitor.export.CsvExporter;
+import com.cybermonitor.parser.EventParser;
+import com.cybermonitor.service.AlertService;
+import com.cybermonitor.service.IncidentService;
+import com.cybermonitor.service.PipelineService;
+import com.cybermonitor.ui.MainWindow;
 import javafx.application.Application;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import java.util.List;
 
 /**
  * JavaFX entry point. Starts the Spring context, checks the database and shows a window.
@@ -31,16 +36,16 @@ public class CyberShieldApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        Label title = new Label("CyberShield Desktop");
-        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
-        Label spring = new Label("Spring context: started");
-        Label database = new Label("SQLite: " + (databaseConnected ? "connected" : "FAILED (see log)"));
-
-        VBox root = new VBox(10, title, spring, database);
-        root.setPadding(new Insets(24));
+        MainWindow window = new MainWindow(
+                context.getBean(PipelineService.class),
+                context.getBean(AlertService.class),
+                context.getBean(IncidentService.class),
+                context.getBean(CsvExporter.class),
+                List.copyOf(context.getBeansOfType(EventParser.class).values()),
+                "SQLite: " + (databaseConnected ? "connected" : "FAILED (see log)"));
 
         stage.setTitle("CyberShield Desktop");
-        stage.setScene(new Scene(root, 640, 360));
+        stage.setScene(new Scene(window, 1200, 720));
         stage.show();
     }
 

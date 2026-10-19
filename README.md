@@ -66,16 +66,22 @@ Training and test datasets use different random seeds.
 
 ## Getting started
 
-Prerequisites: JDK 21, Maven 3.9+, Git.
+Prerequisites: JDK 21, Maven 3.9+ (or IntelliJ IDEA, which bundles Maven), Git.
 
 ```bash
-git clone <repository-url>
-cd cybershield
+git clone https://github.com/vinuba20/CyberShield.git
+cd CyberShield
 mvn clean test
 mvn javafx:run
 ```
 
-These commands apply once the Maven project is set up in Phase 1. Sample datasets will be in `data/sample/`, and the log and CSV formats will be documented in `docs/data-formats.md`.
+In the app, choose the format, click **Import file...** and pick `data/sample/auth_sample.log`. With the default settings it produces 22 events, 4 alerts and 3 incidents, and skips 2 malformed lines. Open an alert to see why it was raised and which events support it; open an incident to change its status and add notes. Everything is stored in `cybershield.db` (ignored by Git) and is still there after a restart.
+
+Settings (thresholds, time windows, database path) are in `src/main/resources/cybershield.properties` and are described in `docs/data-formats.md`, together with the file formats.
+
+## Tests
+
+`mvn test` runs the unit tests (parser, rules, correlation, filters, CSV export, evaluation, services), the SQLite repository tests and an end-to-end test that imports the sample file through Spring and SQLite, restarts the context, and checks that incidents, notes and status are still there.
 
 ## Evaluation
 
@@ -84,7 +90,9 @@ The evaluation compares:
 1. Independent rule alerts vs correlated incidents (precision, recall, F1, false-positive rate, alert reduction, throughput).
 2. Earliest-timestamp baseline vs precedence ranker (top-1 and top-3 accuracy at 0 s, 1 s and 3 s clock skew).
 
-Results, dataset sizes and random seeds will be recorded in `docs/evaluation.md` after real runs. Limitations: the synthetic generator defines the causal order the ranker learns, so results show the method works on the assumed structure, not on real equipment.
+Run `com.cybermonitor.evaluation.EvaluationRunner` (in IntelliJ: right-click the class, Run, with the program arguments `42 docs/evaluation.md`) to generate seeded synthetic data, score the rules and correlation against the ground truth, and write the report. The measured results are in [docs/evaluation.md](docs/evaluation.md): rule comparison, threshold sweep, correlation-window sweep and a 10-seed stability check.
+
+Limitations: the synthetic generator defines the attacks and the causal order, so results show the method works on the assumed structure, not on real systems or equipment. Forgetful users who fail three or more times and then succeed are flagged as compromises (false alerts), and low-and-slow attacks are missed by the short-window rule; both are visible in the report.
 
 ## Team and workflow
 
@@ -95,16 +103,21 @@ Results, dataset sizes and random seeds will be recorded in `docs/evaluation.md`
 
 Work is split by feature track so both members build algorithm code and application code. It follows the full [Product Requirements Document](docs/PRD.md), which lists tasks, phases and checkpoints.
 
-Work uses feature branches and pull requests, with the other member reviewing every PR. `main` always builds. Never commit `*.db` files or build output.
+### Git workflow
+
+- Work on a feature branch (`feature/<name>`), never directly on `main`.
+- Open a pull request; the other member reviews and approves it before it is merged.
+- `main` always builds and passes `mvn test`.
+- Never commit `*.db` files, `target/` or IDE files (see `.gitignore`).
 
 ## Roadmap
 
-- [ ] Phase 0: shared models and interfaces
-- [ ] Phase 1: project setup and import
-- [ ] Phase 2: detection rules and storage
+- [x] Phase 0: shared models and interfaces
+- [ ] Phase 1: project setup and import (auth log)
+- [ ] Phase 2: detection rules and storage (brute force, fail-then-success, SQLite)
 - [ ] Phase 3: correlation and incident investigation
-- [ ] Phase 4: root-cause ranking
-- [ ] Phase 5: evaluation, filters, dashboard, export
+- [ ] Phase 4: root-cause ranking (Member 2)
+- [ ] Phase 5: evaluation, filters, dashboard, export (security-track parts done; dashboard and root-cause evaluation by Member 2)
 - [ ] Phase 6: documentation and packaging
 
 ## License
